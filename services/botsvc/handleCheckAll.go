@@ -1,6 +1,7 @@
 package botsvc
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gpng/delivery-bot-api/models"
@@ -29,6 +30,21 @@ func (s *Service) handleCheckAll() http.HandlerFunc {
 		}
 		for postcode, chatIDs := range postcodeMap {
 			deliveryslots.CheckAll(s.db, s.bot, chatIDs, postcode, false)
+		}
+	}
+}
+
+func (s *Service) handleCheckPostalCode() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		s.render.Respond(w, r, s.render.Message(true, "ok"))
+
+		invalidPostcodes, err := models.GetInvalidPostcodes(s.db)
+		if err != nil && !gorm.IsRecordNotFoundError(err) {
+			return
+		}
+
+		for _, postcode := range invalidPostcodes {
+			s.bot.SendMessage(postcode.ChatID, fmt.Sprintf("Your postcode %d is invalid, please set it again using /postcode <postal_code>", postcode.Postcode))
 		}
 	}
 }

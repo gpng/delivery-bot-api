@@ -64,3 +64,13 @@ func GetActivePostcodes(db *gorm.DB) ([]Postcode, error) {
 	}
 	return postcodes, err
 }
+
+// GetInvalidPostcodes where postal codes are not 6 digits
+func GetInvalidPostcodes(db *gorm.DB) ([]Postcode, error) {
+	postcodes := []Postcode{}
+	err := db.Where("postcode < 100000 or postcode > 999999").Find(&postcodes).Error
+	if err != nil && !gorm.IsRecordNotFoundError(err) {
+		u.LogError(err)
+	}
+	return postcodes, err
+}
