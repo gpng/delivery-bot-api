@@ -62,6 +62,11 @@ func (s *Service) handlePostalcode(chatID int64, postalcode string) {
 		return
 	}
 
+	if postcode < 100000 || postcode > 999999 {
+		s.bot.SendMessage(chatID, "Invalid postal code, must consists of 6 digits only")
+		return
+	}
+
 	// check if postcode already exists
 	existingPostcode, err := models.GetPostcodeByChatID(s.db, chatID)
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
