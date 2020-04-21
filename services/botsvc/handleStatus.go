@@ -2,8 +2,6 @@ package botsvc
 
 import (
 	"net/http"
-
-	u "github.com/gpng/delivery-bot-api/utils/utils"
 )
 
 type statusResponse struct {
@@ -18,6 +16,6 @@ func (s *Service) handleStatus() http.HandlerFunc {
 			Service: "BotSvc",
 			Version: 1,
 		}
-		u.Respond(w, u.DataMessage(status, true, "API responding"))
+		s.render.Respond(w, r, s.render.DataMessage(status, true, "API responding"))
 	}
 }

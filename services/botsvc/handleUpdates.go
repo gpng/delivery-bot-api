@@ -10,6 +10,7 @@ import (
 	c "github.com/gpng/delivery-bot-api/constants"
 	"github.com/gpng/delivery-bot-api/models"
 	"github.com/gpng/delivery-bot-api/utils/deliveryslots"
+	u "github.com/gpng/delivery-bot-api/utils/utils"
 	"github.com/jinzhu/gorm"
 )
 
@@ -18,7 +19,7 @@ func (s *Service) handleUpdates() http.HandlerFunc {
 		s.render.Respond(w, r, s.render.Message(true, "ok"))
 		update := &models.TelegramUpdate{}
 		if err := json.NewDecoder(r.Body).Decode(update); err != nil {
-			s.render.RespondWithStatus(w, r, http.StatusBadRequest, s.render.ErrorMessage(c.ErrRequestBadJSON, err, "Failed to decode request body"))
+			u.LogError(err)
 			return
 		}
 
