@@ -58,12 +58,12 @@ func (s *Service) handleHelp(chatID int64) {
 func (s *Service) handlePostalcode(chatID int64, postalcode string) {
 	postcode, err := strconv.Atoi(postalcode)
 	if err != nil {
-		s.bot.SendMessage(chatID, "Invalid postal code")
+		s.bot.SendMessage(chatID, "Invalid postal code, must consists of 6 digits only (e.g. /postalcode 123456)")
 		return
 	}
 
 	if postcode < 100000 || postcode > 999999 {
-		s.bot.SendMessage(chatID, "Invalid postal code, must consists of 6 digits only")
+		s.bot.SendMessage(chatID, "Invalid postal code, must consists of 6 digits only (e.g. /postalcode 123456)")
 		return
 	}
 
