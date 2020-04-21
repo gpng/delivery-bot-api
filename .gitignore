@@ -1,0 +1,17 @@
+# dev env variables
+.env
+
+# issues here cos .ebignore doesn't work, this has to be commented out before deployment
+.prod.env
+
+
+# build folder
+bin/*
+
+# db data
+db-data/
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

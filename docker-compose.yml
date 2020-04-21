@@ -1,0 +1,23 @@
+version: "3.6"
+
+services:
+  database:
+    image: postgres:alpine
+    volumes:
+      - ./db-data/db-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=delivery-bot
+  api:
+    image: delivery-bot:latest
+    ports:
+      - 4000:4000
+    volumes:
+      - ./:/app
+    links:
+      - database
+    environment:
+      - PORT=4000
+      - DB_HOST=database
+      - DB_PORT=5432

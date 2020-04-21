@@ -1,0 +1,12 @@
+basePath: /
+host: localhost:4000
+info:
+  contact:
+    email: dev@localhost
+    name: Developers
+  description: Simple REST API using golang
+  license: {}
+  title: Golang API
+  version: 0.0.1
+paths: {}
+swagger: "2.0"

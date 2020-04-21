@@ -1,0 +1,16 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Simple REST API using golang",
+        "title": "Golang API",
+        "contact": {
+            "name": "Developers",
+            "email": "dev@localhost"
+        },
+        "license": {},
+        "version": "0.0.1"
+    },
+    "host": "localhost:4000",
+    "basePath": "/",
+    "paths": {}
+}
