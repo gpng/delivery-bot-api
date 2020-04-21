@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"strconv"
 
 	"github.com/gpng/delivery-bot-api/connections/telegram"
 	c "github.com/gpng/delivery-bot-api/constants"
@@ -20,7 +19,7 @@ type fairpriceResponse struct {
 	Data fairpriceResponseData `json:"data"`
 }
 
-func checkFairprice(db *gorm.DB, bot *telegram.Bot, chatIDs []int64, postcode int, negativeResponse bool) {
+func checkFairprice(db *gorm.DB, bot *telegram.Bot, chatIDs []int64, postcode string, negativeResponse bool) {
 	message := ""
 	available := false
 
@@ -30,7 +29,7 @@ func checkFairprice(db *gorm.DB, bot *telegram.Bot, chatIDs []int64, postcode in
 		return
 	}
 	q := url.Query()
-	q.Add("address[pincode]", strconv.Itoa(postcode))
+	q.Add("address[pincode]", postcode)
 	q.Add("storeId", "165")
 	url.RawQuery = q.Encode()
 	resp, err := http.Get(url.String())

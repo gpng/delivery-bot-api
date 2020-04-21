@@ -9,9 +9,10 @@ import (
 // Postcode model
 type Postcode struct {
 	Model
-	Postcode int   `json:"postcode"`
-	ChatID   int64 `json:"chatId"`
-	Status   int   `json:"status"`
+	PostcodeString string `json:"postcodeString"`
+	Postcode       int    `json:"postcode"`
+	ChatID         int64  `json:"chatId"`
+	Status         int    `json:"status"`
 }
 
 // GetPostcodeByChatID from db
@@ -34,10 +35,10 @@ func (postcode *Postcode) Create(db *gorm.DB) error {
 }
 
 // UpdatePostcode by chat id
-func UpdatePostcode(db *gorm.DB, id string, postcode int) error {
+func UpdatePostcode(db *gorm.DB, id string, postcode string) error {
 	postcodeModel := Postcode{}
 	postcodeModel.ID = id
-	err := db.Model(postcodeModel).Update("postcode", postcode).Error
+	err := db.Model(postcodeModel).Update("postcode_string", postcode).Error
 	if err != nil {
 		u.LogError(err)
 	}
@@ -59,16 +60,6 @@ func UpdateStatus(db *gorm.DB, id string, status int) error {
 func GetActivePostcodes(db *gorm.DB) ([]Postcode, error) {
 	postcodes := []Postcode{}
 	err := db.Where("status = ?", c.StatusActive).Find(&postcodes).Error
-	if err != nil && !gorm.IsRecordNotFoundError(err) {
-		u.LogError(err)
-	}
-	return postcodes, err
-}
-
-// GetInvalidPostcodes where postal codes are not 6 digits
-func GetInvalidPostcodes(db *gorm.DB) ([]Postcode, error) {
-	postcodes := []Postcode{}
-	err := db.Where("postcode < 100000 or postcode > 999999").Find(&postcodes).Error
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		u.LogError(err)
 	}

@@ -7,7 +7,6 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/gpng/delivery-bot-api/connections/telegram"
@@ -25,7 +24,7 @@ type giantResponse struct {
 	Earliest json.RawMessage `json:"earliest"`
 }
 
-func checkGiant(db *gorm.DB, bot *telegram.Bot, chatIDs []int64, postcode int, negativeResponse bool) {
+func checkGiant(db *gorm.DB, bot *telegram.Bot, chatIDs []int64, postcode string, negativeResponse bool) {
 	message := ""
 	available := false
 
@@ -38,7 +37,7 @@ func checkGiant(db *gorm.DB, bot *telegram.Bot, chatIDs []int64, postcode int, n
 		u.LogError(err)
 		return
 	}
-	io.Copy(fw, strings.NewReader(strconv.Itoa(postcode)))
+	io.Copy(fw, strings.NewReader(postcode))
 	w.Close()
 
 	resp, err := http.Post(url, w.FormDataContentType(), &b)

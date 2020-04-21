@@ -16,13 +16,13 @@ type shengsiongResponse struct {
 	Response string `json:"response"`
 }
 
-func checkShengsiong(db *gorm.DB, bot *telegram.Bot, chatIDs []int64, postcode int, negativeResponse bool) {
+func checkShengsiong(db *gorm.DB, bot *telegram.Bot, chatIDs []int64, postcode string, negativeResponse bool) {
 	message := ""
 	available := false
 
 	url := "https://www.allforyou.sg/Common/pinCodeSearch"
 
-	data := []byte(fmt.Sprintf(`{"pinStatus": 1, "code": %d}`, postcode))
+	data := []byte(fmt.Sprintf(`{"pinStatus": 1, "code": "%s"}`, postcode))
 
 	resp, err := http.Post(url, "application/json", bytes.NewBuffer(data))
 	if err != nil {

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
+	"regexp"
 	"strings"
 
 	c "github.com/gpng/delivery-bot-api/constants"
@@ -55,14 +55,9 @@ func (s *Service) handleHelp(chatID int64) {
 	s.bot.SendMessage(chatID, "Use \"/postalcode <postal code>\" (e.g. \"/postalcode 123456\") to set your postal code and start tracking. Use /pause to pause updates and /unpause to restart, and /check to manually trigger an update.")
 }
 
-func (s *Service) handlePostalcode(chatID int64, postalcode string) {
-	postcode, err := strconv.Atoi(postalcode)
-	if err != nil {
-		s.bot.SendMessage(chatID, "Invalid postal code, must consists of 6 digits only (e.g. /postalcode 123456)")
-		return
-	}
-
-	if postcode < 100000 || postcode > 999999 {
+func (s *Service) handlePostalcode(chatID int64, postcode string) {
+	match, _ := regexp.MatchString("^\\d{6}$", postcode)
+	if !match {
 		s.bot.SendMessage(chatID, "Invalid postal code, must consists of 6 digits only (e.g. /postalcode 123456)")
 		return
 	}
@@ -75,16 +70,16 @@ func (s *Service) handlePostalcode(chatID int64, postalcode string) {
 	// no existing postcode, create
 	if gorm.IsRecordNotFoundError(err) {
 		newPostcode := models.Postcode{
-			Postcode: postcode,
-			ChatID:   chatID,
-			Status:   c.StatusActive,
+			PostcodeString: postcode,
+			ChatID:         chatID,
+			Status:         c.StatusActive,
 		}
 		if err := newPostcode.Create(s.db); err != nil {
 			s.bot.SendMessage(chatID, "Failed to update postcode, please contact dev :(")
 			return
 		}
 
-		s.bot.SendMessage(chatID, fmt.Sprintf("Success! Your postcode has been set to %d and tracking has started! Use \"/pause\" to pause tracking and \"/unpause\" to start tracking again.", postcode))
+		s.bot.SendMessage(chatID, fmt.Sprintf("Success! Your postcode has been set to %s and tracking has started! Use \"/pause\" to pause tracking and \"/unpause\" to start tracking again.", postcode))
 		deliveryslots.CheckAll(s.db, s.bot, []int64{chatID}, postcode, true)
 		return
 	}
@@ -95,7 +90,7 @@ func (s *Service) handlePostalcode(chatID int64, postalcode string) {
 		return
 	}
 
-	s.bot.SendMessage(chatID, fmt.Sprintf("Success! Your postcode has been set to %d.", postcode))
+	s.bot.SendMessage(chatID, fmt.Sprintf("Success! Your postcode has been set to %s.", postcode))
 
 	deliveryslots.CheckAll(s.db, s.bot, []int64{chatID}, postcode, true)
 }
@@ -106,12 +101,12 @@ func (s *Service) handleCheck(chatID int64) {
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return
 	}
-	if gorm.IsRecordNotFoundError(err) || existingPostcode.Postcode <= 0 {
+	if gorm.IsRecordNotFoundError(err) || existingPostcode.PostcodeString == "" {
 		s.bot.SendMessage(chatID, "You have not set a postal code yet. Use \"/postalcode <postal code>\" (e.g. \"/postalcode 123456\" ) to set a postal code and start tracking.")
 		return
 	}
 
-	deliveryslots.CheckAll(s.db, s.bot, []int64{chatID}, existingPostcode.Postcode, true)
+	deliveryslots.CheckAll(s.db, s.bot, []int64{chatID}, existingPostcode.PostcodeString, true)
 }
 
 func (s *Service) handlePause(chatID int64) {
@@ -120,7 +115,7 @@ func (s *Service) handlePause(chatID int64) {
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return
 	}
-	if gorm.IsRecordNotFoundError(err) || existingPostcode.Postcode <= 0 {
+	if gorm.IsRecordNotFoundError(err) || existingPostcode.PostcodeString == "" {
 		s.bot.SendMessage(chatID, "You have not set a postal code yet. Use \"/postalcode <postal code>\" (e.g. \"/postalcode 123456\" ) to set a postal code and start tracking.")
 		return
 	}
@@ -138,7 +133,7 @@ func (s *Service) handleUnpause(chatID int64) {
 	if err != nil && !gorm.IsRecordNotFoundError(err) {
 		return
 	}
-	if gorm.IsRecordNotFoundError(err) || existingPostcode.Postcode <= 0 {
+	if gorm.IsRecordNotFoundError(err) || existingPostcode.PostcodeString == "" {
 		s.bot.SendMessage(chatID, "You have not set a postal code yet. Use \"/postalcode <postal code>\" (e.g. \"/postalcode 123456\" ) to set a postal code and start tracking.")
 		return
 	}
@@ -148,5 +143,5 @@ func (s *Service) handleUnpause(chatID int64) {
 		return
 	}
 	s.bot.SendMessage(chatID, "Tracking started! Use /pause to pause tracking.")
-	deliveryslots.CheckAll(s.db, s.bot, []int64{chatID}, existingPostcode.Postcode, true)
+	deliveryslots.CheckAll(s.db, s.bot, []int64{chatID}, existingPostcode.PostcodeString, true)
 }

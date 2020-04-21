@@ -12,7 +12,6 @@ func (s *Service) Routes() chi.Router {
 
 	router.Post("/updates", s.handleUpdates())
 	router.Get("/checkAll", s.handleCheckAll())
-	router.Get("/checkPostcodes", s.handleCheckPostalCode())
 
 	return router
 }
