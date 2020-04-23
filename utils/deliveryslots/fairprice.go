@@ -2,6 +2,7 @@ package deliveryslots
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -19,20 +20,60 @@ type fairpriceResponse struct {
 	Data fairpriceResponseData `json:"data"`
 }
 
-func checkFairprice(db *gorm.DB, bot *telegram.Bot, chatIDs []int64, postcode string, negativeResponse bool) {
-	message := ""
-	available := false
+type fairpriceReponseStore struct {
+	ID int `json:"id"`
+}
 
-	url, err := url.Parse("https://website-api.omni.fairprice.com.sg/api/slot-availability")
+type fairpriceAreaResponseData struct {
+	Store fairpriceReponseStore `json:"store"`
+}
+
+type fairpriceAreaResponse struct {
+	Data fairpriceAreaResponseData `json:"data"`
+}
+
+func checkFairprice(db *gorm.DB, bot *telegram.Bot, chatIDs []int64, postcode string, negativeResponse bool) {
+	// get storeid first
+	url, err := url.Parse("https://website-api.omni.fairprice.com.sg/api/serviceable-area")
 	if err != nil {
 		u.LogError(err)
 		return
 	}
 	q := url.Query()
-	q.Add("address[pincode]", postcode)
-	q.Add("storeId", "165")
+	q.Add("city", "Singapore")
+	q.Add("pincode", postcode)
 	url.RawQuery = q.Encode()
+
 	resp, err := http.Get(url.String())
+	if err != nil {
+		u.LogError(err)
+		return
+	}
+
+	areaDecoded := &fairpriceAreaResponse{}
+	if err := json.NewDecoder(resp.Body).Decode(&areaDecoded); err != nil {
+		u.LogError(err)
+		return
+	}
+
+	storeID := areaDecoded.Data.Store.ID
+	if storeID <= 0 {
+		return
+	}
+
+	message := ""
+	available := false
+
+	url, err = url.Parse("https://website-api.omni.fairprice.com.sg/api/slot-availability")
+	if err != nil {
+		u.LogError(err)
+		return
+	}
+	q = url.Query()
+	q.Add("address[pincode]", postcode)
+	q.Add("storeId", fmt.Sprintf("%d", storeID))
+	url.RawQuery = q.Encode()
+	resp, err = http.Get(url.String())
 	if err != nil {
 		u.LogError(err)
 		return
