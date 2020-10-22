@@ -48,11 +48,11 @@ func (s *Service) handleUpdates() http.HandlerFunc {
 }
 
 func (s *Service) handleStart(chatID int64) {
-	s.bot.SendMessage(chatID, "Welcome to SG Delivery Slots Bot. Use \"/postalcode <postal code>\" (e.g. \"/postalcode 123456\") to set your postal code and start tracking. Use /pause to pause updates and /unpause to restart, and /check to manually trigger an update.\n\nContact @g2png for bug reports, feedback or feature requests.")
+	s.bot.SendMessage(chatID, "Welcome to SG Delivery Slots Bot. Use \"/postalcode <postal code>\" (e.g. \"/postalcode 123456\") to set your postal code and start tracking. Use /pause to pause updates and /unpause to restart, and /check to manually trigger an update.")
 }
 
 func (s *Service) handleHelp(chatID int64) {
-	s.bot.SendMessage(chatID, "Use \"/postalcode <postal code>\" (e.g. \"/postalcode 123456\") to set your postal code and start tracking. Use /pause to pause updates and /unpause to restart, and /check to manually trigger an update.\n\nContact @g2png for bug reports, feedback or feature requests.")
+	s.bot.SendMessage(chatID, "Use \"/postalcode <postal code>\" (e.g. \"/postalcode 123456\") to set your postal code and start tracking. Use /pause to pause updates and /unpause to restart, and /check to manually trigger an update.")
 }
 
 func (s *Service) handlePostalcode(chatID int64, postcode string) {
